@@ -8,10 +8,68 @@ namespace Tests
         [TestMethod]
         public void ParseTest()
         {
-            RomanNumber rn = RomanNumber.Parse("");
-            //rn = null!;
-            Assert.IsNotNull(rn, "Parse result is not null");
-            Assert.AreEqual(0, rn.Value, "Zero testing");
+            Dictionary<String, int> testCases = new()
+            {
+                { "N", 0},
+                { "I", 1},
+                { "II", 2},
+                { "III", 3},
+                { "IIII", 4},
+                { "V", 5},
+                { "X", 10},
+                { "D", 500},
+                { "IV", 4},
+                { "VI", 6},
+                { "XI", 11},
+                { "IX", 9},
+                { "MM", 2000},
+                { "MCM", 1900},
+                #region HW
+                { "XL", 40},
+                { "XC", 90},
+                { "CD", 400},
+                { "CMII", 902},
+                { "DCCCC", 900},
+                { "CCCC", 400},
+                { "XIXIIII", 23},
+                { "XXXXX", 50},
+                { "DDMD", 1500},
+                #endregion
+
+            };
+            foreach (var testCase in testCases)
+            {
+                RomanNumber rn = RomanNumber.Parse(testCase.Key);
+                Assert.IsNotNull(rn, $"Parse result of '{testCase.Key}' is not null");
+                Assert.AreEqual(
+                    testCase.Value,
+                    rn.Value,
+                    $"Parse '{testCase.Key}' => {testCase.Value}"
+                    );
+            }
+        }
+
+        [TestMethod]
+        public void DigitValueChar()
+        {
+            Dictionary<char, int> testCases = new()
+            {
+                {'N', 0},
+                {'I', 1},
+                {'V', 5},
+                {'X', 10},
+                {'L', 50},
+                {'C', 100},
+                {'D', 500},
+                {'M', 1000},
+            };
+            foreach (var testCase in testCases)
+            {
+                Assert.AreEqual(testCase.Value,
+                    RomanNumber.DigitValue(testCase.Key),
+                    $"{testCase.Key} => {testCase.Value}"
+                    );
+            }
         }
     }
 }
