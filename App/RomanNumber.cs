@@ -33,7 +33,8 @@ namespace App
             'L' => 50,
             'C' => 100,
             'D' => 500,
-             _ => 1000
+            'M' => 1000,
+             _ => throw new ArgumentException($"('{digit}')"),
         };
     }
 }

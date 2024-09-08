@@ -52,24 +52,70 @@ namespace Tests
         [TestMethod]
         public void DigitValueChar()
         {
-            Dictionary<char, int> testCases = new()
+            //Dictionary<char, int> testCases = new()
+            //{
+            //    {'N', 0},
+            //    {'I', 1},
+            //    {'V', 5},
+            //    {'X', 10},
+            //    {'L', 50},
+            //    {'C', 100},
+            //    {'D', 500},
+            //    {'M', 1000},
+            //};
+            //foreach (var testCase in testCases)
+            //{
+            //    Assert.AreEqual(testCase.Value,
+            //        RomanNumber.DigitValue(testCase.Key),
+            //        $"{testCase.Key} => {testCase.Value}"
+            //        );
+            //}
+
+            //char[] excCases = { '1', 'x', 'i', '&' };
+
+            //foreach (var testCase in excCases)
+            //{
+            //    var ex = Assert.ThrowsException<ArgumentException>(
+            //    () => RomanNumber.DigitValue(testCase),
+            //    $"DigitValue({testCase}) must throw ArgumentException"
+            //    );
+            //    Assert.IsTrue(
+            //    ex.Message.Contains($"'{testCase}'"),
+            //        "DigitValue ex.Message should contain a symbol which cause exception:" +
+            //        $" symbol: '{testCase}', ex.Message: '{ex.Message}'"
+            //        );
+            //    Assert.IsTrue(
+            //        ex.Message.Contains($"{nameof(RomanNumber)}") &&
+            //        ex.Message.Contains($"{nameof(RomanNumber.DigitValue)}"),
+            //        "DigitValue ex.Message should contain a symbol which cause exception:" +
+            //        $" symbol: '{testCase}', ex.Message: '{ex.Message}'"
+            //        );
+            //}
+
+            #region HW2
+
+            char[] excCases = { 'N', '1', 'x', 'i', '&' };
+
+            foreach (var digit in excCases)
             {
-                {'N', 0},
-                {'I', 1},
-                {'V', 5},
-                {'X', 10},
-                {'L', 50},
-                {'C', 100},
-                {'D', 500},
-                {'M', 1000},
-            };
-            foreach (var testCase in testCases)
-            {
-                Assert.AreEqual(testCase.Value,
-                    RomanNumber.DigitValue(testCase.Key),
-                    $"{testCase.Key} => {testCase.Value}"
+                var ex = Assert.ThrowsException<ArgumentException>(
+                () => RomanNumber.DigitValue(digit),
+                $"DigitValue({digit}) must throw ArgumentException"
+                );
+                Assert.IsTrue(
+                    ex.Message.Contains($"'{digit}'"),
+                    "Not valid Roman digit:" +
+                    $" argument: ('{digit}'), ex.Message: {ex.Message}"
+                    );
+                Assert.IsTrue(
+                    ex.Message.Contains($"{nameof(RomanNumber)}") &&
+                    ex.Message.Contains($"{nameof(RomanNumber.DigitValue)}"),
+                    "Not valid Roman digit:" +
+                    $" argument: ('{digit}'), ex.Message: {ex.Message}"
                     );
             }
+
+            #endregion
         }
     }
 }
