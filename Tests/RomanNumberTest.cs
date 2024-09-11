@@ -121,10 +121,11 @@ namespace Tests
 
 
             Object[][] exCases3 = [
-                ["IIX", 'X', 2],    // Перед цифрою є декілька цифр, менших за неї
-                ["VIX", 'X', 2],    // !! кожна пара цифр - правильна комбінація,
-                ["XXC", 'C', 2],    //    проблема створюється щонайменше трьома цифрами
-                ["IXC", 'C', 2],    // 
+                [ "IIX", 'X', 2 ],   // Перед цифрою є декілька цифр, менших за неї
+                [ "VIX", 'X', 2 ],   // !! кожна пара цифр - правильна комбінація,
+                [ "XXC", 'C', 2 ],   //    проблема створюється щонайменше трьома цифрами
+                [ "IXC", 'C', 2 ],   
+                [ "IIIV", 'V', 3]   
             ];
             foreach (var exCase in exCases3)
             {
@@ -132,30 +133,32 @@ namespace Tests
                     () => RomanNumber.Parse(exCase[0].ToString()),
                     $"RomanNumber.Parse(\"{exCase[0]}\") must throw FormatException"
                     );
-                //Assert.IsTrue(
-                //    ex.Message.Contains($"illegal sequence: more than one smaller digits before'{exCase[1]}'"),
-                //    $"ex.Message must contain symbol before error: '{exCase[1]}', testCase: '{exCase[0]}', ex.Message: {ex.Message}"
-                //    );
-                //Assert.IsTrue(
-                //    ex.Message.Contains($"in position {exCase[2]}"),
-                //    $"ex.Message must contain error symbol position, testCase: '{exCase[0]}'"
-                //    );
-                //Assert.IsTrue(
-                //    ex.Message.Contains(nameof(RomanNumber)) &&
-                //    ex.Message.Contains(nameof(RomanNumber)),
-                //    $"ex.Message must contain names of class and method, testCase: '{exCase[0]}', ex.Message: {ex.Message}"
-                //    );
+                Assert.IsTrue(
+                    ex.Message.Contains($"illegal sequence: more than one smaller digits before '{exCase[1]}'"),
+                    $"ex.Message must contain symbol before error: '{exCase[1]}', testCase: '{exCase[0]}', ex.Message: {ex.Message}"
+                    );
+                Assert.IsTrue(
+                    ex.Message.Contains($"in position {exCase[2]}"),
+                    $"ex.Message must contain error symbol position, testCase: '{exCase[0]}'"
+                    );
+                Assert.IsTrue(
+                    ex.Message.Contains(nameof(RomanNumber)) &&
+                    ex.Message.Contains(nameof(RomanNumber)),
+                    $"ex.Message must contain names of class and method, testCase: '{exCase[0]}', ex.Message: {ex.Message}"
+                    );
             }
 
             Object[][] exCases4 = [
-                ["IXX", 'I'],    // XIX XCX
-                ["IXXX", 'I'],   // 
-                ["XCC", 'X'],    // 
-                ["XCCC", 'X'],   // 
-                ["CXCC", 'X'],   // 
-                ["CMM", 'C'],    // 
-                ["CMMM", 'C'],   // 
-                ["MCMM", 'C'],   // 
+                [ "IXX", 'I', 0 ],
+                [ "IXXX", 'I', 0],
+                [ "XCC", 'X', 0 ],
+                [ "XCCC", 'X', 0],
+                [ "CXCC", 'X', 1],
+                [ "CMM", 'C', 0 ],
+                [ "CMMM", 'C', 0],
+                [ "MCMM", 'C', 1],
+                [ "LCC", 'L', 0 ],
+                [ "ICCC", 'I', 0]
             ];
             foreach (var exCase in exCases4)
             {
@@ -167,13 +170,15 @@ namespace Tests
 
 
             Object[][] exCases5 = [
-                ["NN",   '0'],         // Цифра N не може бути у числі, тільки
-                ["IN",   '1'],         // сама по собі
-                ["NX",   '0'],
-                ["NC",   '1'],
-                ["XNC",  '1'],
-                ["XVIN", '3'],
-                ["XNNC", '1'],
+                [ "NN",   '0', 1 ],   // Цифра N не може бути у числі, тільки
+                [ "IN",   '1', 1 ],   // сама по собі
+                [ "NX",   '0', 0 ],   
+                [ "NC",   '1', 1 ],   
+                [ "XNC",  '1', 1 ],   
+                [ "XVIN", '3', 3 ],   
+                [ "XNNC", '1', 1 ],   
+                [ "NMC",  '1', 1 ],   
+                [ "NIX",  '1', 1 ]
             ];
             foreach (var exCase in exCases5)
             {

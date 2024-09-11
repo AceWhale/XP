@@ -48,7 +48,7 @@ namespace App
                 }
 
                 // рахуємо цифри, якщо вони менші за максимальну
-                if(digit > maxDigit)
+                if (digit > maxDigit)
                 {
                     maxDigit = digit;
                     lessCounter = 0;
@@ -65,9 +65,12 @@ namespace App
                 }
                 if (lessCounter > 1 || lessCounter > 0 && maxCounter > 1)
                 {
-                    throw new FormatException(Value);
+                    
+                    throw new FormatException(
+                        $"{nameof(RomanNumber)}.{nameof(Parse)}() " +
+                        $"illegal sequence: more than one smaller digits before '{Value[Value.Length -1]}' in position {Value.Length -1}");
                 }
-                if(Value.Length > 1 && digit == 0)
+                if (Value.Length > 1 && digit == 0)
                 {
                     throw new FormatException(Value);
                 }
@@ -76,11 +79,6 @@ namespace App
                 prevDigit = digit;
             }
 
-            //if (invalidSymbols.Count > 0)
-            //{
-            //    throw new FormatException(
-            //        $"{nameof(RomanNumber)}.{nameof(Parse)}() found illegal symbols: {string.Join(", ", invalidSymbols)}");
-            //}
             return new RomanNumber(result);
         }
 
