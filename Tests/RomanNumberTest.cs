@@ -31,9 +31,9 @@ namespace Tests
                 { "CMII", 902},
                 { "DCCCC", 900},
                 { "CCCC", 400},
-                { "XIXIIII", 23},
+                //{ "XIXIIII", 23},
                 { "XXXXX", 50},
-                { "DDMD", 1500},
+                //{ "DDMD", 1500},
                 #endregion
 
             };
@@ -45,6 +45,141 @@ namespace Tests
                     testCase.Value,
                     rn.Value,
                     $"Parse '{testCase.Key}' => {testCase.Value}"
+                    );
+            }
+            /* Виняток парсера - окрім причини винятку містить відомості
+             * про місце виникнення помилки (позиція у рядку)
+             */
+            Object[][] exCases = [
+                ["W", "W", 0],
+                ["CS", "S", 1],
+                ["CX1", "1", 2],
+            ];
+            foreach (var exCase in exCases)
+            {
+                var ex = Assert.ThrowsException<FormatException>(
+                    () => RomanNumber.Parse(exCase[0].ToString()),
+                    $"RomanNumber.Parse(\"{exCase[0]}\") must throw FormatException"
+                    );
+                // накладаємо вимоги на повідомлення
+                // - має містити сам символ, що призводить до винятку
+                // - має містити позицію символу в рядку
+                // - має містити назву методу та класу
+                Assert.IsTrue(
+                    ex.Message.Contains($"illegal symbol '{exCase[1]}'"),
+                    $"ex.Message must contain symbol which cause error: '{exCase[1]}', ex.Message: {ex.Message}"
+                    );
+                Assert.IsTrue(
+                    ex.Message.Contains($"in position {exCase[2]}"),
+                    "ex.Message must contain error symbol position"
+                    );
+                Assert.IsTrue(
+                    ex.Message.Contains(nameof(RomanNumber)) &&
+                    ex.Message.Contains(nameof(RomanNumber)),
+                    $"ex.Message must contain names of class and method, ex.Message: {ex.Message}"
+                    );
+            }
+
+            /* Тести на неправильну композицію числа (всі цифри правильні,
+             * але неправильна їх послідовність)
+             * VV, VX, IIX, ...
+             */
+            Object[][] exCases2 = [
+                ["VX", "V", "X", 0],  // ---
+                ["LC", "L", "C", 0],  // "відстань" між цифрами при відніманні:
+                ["DM", "D", "M", 0],  // відніматись можуть I, X, СI причому від
+                ["IC", "I", "C", 0],  // двох сусідніх цифр (I - від V та X, ... )
+                ["MIM", "I", "M", 1],
+                ["MVM", "V", "M", 1],
+                ["MXM", "X", "M", 1],
+                ["CVC", "V", "C", 1],
+                ["MCVC", "V", "C", 2],
+                ["DCIC", "I", "C", 2],
+                ["IM", "I", "M", 0],
+            ];
+            foreach (var exCase in exCases2)
+            {
+                var ex = Assert.ThrowsException<FormatException>(
+                    () => RomanNumber.Parse(exCase[0].ToString()),
+                    $"RomanNumber.Parse(\"{exCase[0]}\") must throw FormatException"
+                    );
+                Assert.IsTrue(
+                    ex.Message.Contains($"illegal sequence: '{exCase[1]}' before '{exCase[2]}'"),
+                    $"ex.Message must contain symbols which cause error: '{exCase[1]}' and '{exCase[2]}', testCase: '{exCase[0]}', ex.Message: {ex.Message}"
+                    );
+                Assert.IsTrue(
+                    ex.Message.Contains($"in position {exCase[3]}"),
+                    $"ex.Message must contain error symbol position, testCase: '{exCase[0]}'"
+                    );
+                Assert.IsTrue(
+                    ex.Message.Contains(nameof(RomanNumber)) &&
+                    ex.Message.Contains(nameof(RomanNumber)),
+                    $"ex.Message must contain names of class and method, testCase: '{exCase[0]}', ex.Message: {ex.Message}"
+                    );
+            }
+
+
+
+            Object[][] exCases3 = [
+                ["IIX", 'X', 2],    // Перед цифрою є декілька цифр, менших за неї
+                ["VIX", 'X', 2],    // !! кожна пара цифр - правильна комбінація,
+                ["XXC", 'C', 2],    //    проблема створюється щонайменше трьома цифрами
+                ["IXC", 'C', 2],    // 
+            ];
+            foreach (var exCase in exCases3)
+            {
+                var ex = Assert.ThrowsException<FormatException>(
+                    () => RomanNumber.Parse(exCase[0].ToString()),
+                    $"RomanNumber.Parse(\"{exCase[0]}\") must throw FormatException"
+                    );
+                //Assert.IsTrue(
+                //    ex.Message.Contains($"illegal sequence: more than one smaller digits before'{exCase[1]}'"),
+                //    $"ex.Message must contain symbol before error: '{exCase[1]}', testCase: '{exCase[0]}', ex.Message: {ex.Message}"
+                //    );
+                //Assert.IsTrue(
+                //    ex.Message.Contains($"in position {exCase[2]}"),
+                //    $"ex.Message must contain error symbol position, testCase: '{exCase[0]}'"
+                //    );
+                //Assert.IsTrue(
+                //    ex.Message.Contains(nameof(RomanNumber)) &&
+                //    ex.Message.Contains(nameof(RomanNumber)),
+                //    $"ex.Message must contain names of class and method, testCase: '{exCase[0]}', ex.Message: {ex.Message}"
+                //    );
+            }
+
+            Object[][] exCases4 = [
+                ["IXX", 'I'],    // XIX XCX
+                ["IXXX", 'I'],   // 
+                ["XCC", 'X'],    // 
+                ["XCCC", 'X'],   // 
+                ["CXCC", 'X'],   // 
+                ["CMM", 'C'],    // 
+                ["CMMM", 'C'],   // 
+                ["MCMM", 'C'],   // 
+            ];
+            foreach (var exCase in exCases4)
+            {
+                var ex = Assert.ThrowsException<FormatException>(
+                    () => RomanNumber.Parse(exCase[0].ToString()),
+                    $"RomanNumber.Parse(\"{exCase[0]}\") must throw FormatException"
+                    );
+            }
+
+
+            Object[][] exCases5 = [
+                ["NN",   '0'],         // Цифра N не може бути у числі, тільки
+                ["IN",   '1'],         // сама по собі
+                ["NX",   '0'],
+                ["NC",   '1'],
+                ["XNC",  '1'],
+                ["XVIN", '3'],
+                ["XNNC", '1'],
+            ];
+            foreach (var exCase in exCases5)
+            {
+                var ex = Assert.ThrowsException<FormatException>(
+                    () => RomanNumber.Parse(exCase[0].ToString()),
+                    $"RomanNumber.Parse(\"{exCase[0]}\") must throw FormatException"
                     );
             }
         }
@@ -94,7 +229,7 @@ namespace Tests
 
             #region HW2
 
-            char[] excCases = { 'N', '1', 'x', 'i', '&' };
+            char[] excCases = { '0', '1', 'x', 'i', '&' };
 
             foreach (var digit in excCases)
             {
