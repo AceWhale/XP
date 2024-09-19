@@ -67,80 +67,72 @@ namespace Tests
         [TestMethod]
         public void ParseTest()
         {
-            Dictionary<String, int> testCases = new()
-            {
-                { "N", 0},
-                { "I", 1},
-                { "II", 2},
-                { "III", 3},
-                { "IIII", 4},
-                { "V", 5},
-                { "X", 10},
-                { "D", 500},
-                { "IV", 4},
-                { "VI", 6},
-                { "XI", 11},
-                { "IX", 9},
-                { "MM", 2000},
-                { "MCM", 1900},
+            TestCase[] testCases =
+            [
+                new( "N", 0),
+                new( "I",  1),
+                new( "II",  2),
+                new( "III",  3),
+                new( "IIII",  4),
+                new( "V",  5),
+                new( "X",  10),
+                new( "D",  500),
+                new( "IV",  4),
+                new( "VI",  6),
+                new( "XI",  11),
+                new( "IX",  9),
+                new( "MM",  2000),
+                new( "MCM", 1900),
                 #region HW
-                { "XL", 40},
-                { "XC", 90},
-                { "CD", 400},
-                { "CMII", 902},
-                { "DCCCC", 900},
-                { "CCCC", 400},
-                //{ "XIXIIII", 23},
-                { "XXXXX", 50},
-                //{ "DDMD", 1500},
+                new( "XL", 40),
+                new( "XC", 90),
+                new( "CD", 400),
+                new( "CMII", 902),
+                new( "DCCCC", 900),
+                new( "CCCC", 400),
+                new( "XXXXX", 50),
                 #endregion
 
-            };
+            ];
             foreach (var testCase in testCases)
             {
-                RomanNumber rn = RomanNumber.Parse(testCase.Key);
-                Assert.IsNotNull(rn, $"Parse result of '{testCase.Key}' is not null");
+                RomanNumber rn = RomanNumber.Parse(testCase.Source);
+                Assert.IsNotNull(rn, $"Parse result of '{testCase.Source}' is not null");
                 Assert.AreEqual(
                     testCase.Value,
                     rn.Value,
-                    $"Parse '{testCase.Key}' => {testCase.Value}"
+                    $"Parse '{testCase.Source}' => {testCase.Value}"
                     );
             }
             /* Виняток парсера - окрім причини винятку містить відомості
              * про місце виникнення помилки (позиція у рядку)
              */
-            Object[][] exCases = [
-                ["W", "W", 0],
-                ["CS", "S", 1],
-                ["CX1", "1", 2],
+            String tpl1 = "illegal symbol '%c'";
+            String tpl2 = "in position %d";
+            String tpl3 = "RomanNumber.Parse";
+            testCases = [
+                new("W",   0, [tpl1.Replace("%c", "W"), tpl2.Replace("%d", "0"), tpl3 ] ),
+                new("CS",  1, [tpl1.Replace("%c", "S"), tpl2.Replace("%d", "1"), tpl3 ] ),
+                new("CX1", 2, [tpl1.Replace("%c", "1"), tpl2.Replace("%d", "2"), tpl3 ] ),
             ];
-            foreach (var exCase in exCases)
+            foreach (var exCase in testCases)
             {
                 var ex = Assert.ThrowsException<FormatException>(
-                    () => RomanNumber.Parse(exCase[0].ToString()!),
-                    $"RomanNumber.Parse(\"{exCase[0]}\") must throw FormatException"
+                    () => RomanNumber.Parse(exCase.Source),
+                    $"RomanNumber.Parse(\"{exCase.Source}\") must throw FormatException"
                     );
                 // накладаємо вимоги на повідомлення
                 // - має містити сам символ, що призводить до винятку
                 // - має містити позицію символу в рядку
                 // - має містити назву методу та класу
-                Assert.IsTrue(
-                    ex.Message.Contains($"illegal symbol '{exCase[1]}'"),
-                    $"ex.Message must contain symbol which cause error: '{exCase[1]}', ex.Message: {ex.Message}"
+                foreach (String part in exCase.ExMessageParts!)
+                {
+                    Assert.IsTrue(
+                    ex.Message.Contains(part),
+                    $"ex.Message must contain '{part}'; ex.Message: {ex.Message}"
                     );
-                Assert.IsTrue(
-                    ex.Message.Contains($"in position {exCase[2]}"),
-                    "ex.Message must contain error symbol position"
-                    );
-                Assert.IsTrue(
-                    ex.Message.Contains(nameof(RomanNumber)) &&
-                    ex.Message.Contains(nameof(RomanNumber)),
-                    $"ex.Message must contain names of class and method, ex.Message: {ex.Message}"
-                    );
+                }
             }
-
-
-            
 
         }
 
@@ -202,6 +194,9 @@ namespace Tests
             #endregion
         }
     }
+
+    record TestCase(String Source, int? Value, IEnumerable<String>? ExMessageParts = null) { }
+
 }
 
 /* Тестовий проєкт за структурою відтворює основний проєкт: 
