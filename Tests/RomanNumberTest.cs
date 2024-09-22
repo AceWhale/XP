@@ -18,6 +18,62 @@ namespace Tests
         };
 
         [TestMethod]
+        public void TestToShort()
+        {
+            RomanNumber rn = new(123);
+            short result = (short)rn;
+            Assert.AreEqual(123, result);
+        }
+
+        [TestMethod]
+        public void TestToByte()
+        {
+            RomanNumber rn = new(100);
+            byte result = (byte)rn;
+            Assert.AreEqual(100, result);
+        }
+
+        [TestMethod]
+        public void TestToLong()
+        {
+            RomanNumber rn = new(1234);
+            long result = (long)rn;
+            Assert.AreEqual(1234, result);
+        }
+
+        [TestMethod]
+        public void TestToInt()
+        {
+            RomanNumber rn = new(567);
+            int result = (int)rn;
+            Assert.AreEqual(567, result);
+        }
+
+        [TestMethod]
+        public void TestToFloat()
+        {
+            RomanNumber rn = new(345);
+            float result = (float)rn;
+            Assert.AreEqual(345f, result);
+        }
+
+        [TestMethod]
+        public void TestToDouble()
+        {
+            RomanNumber rn = new(678);
+            double result = (double)rn;
+            Assert.AreEqual(678d, result);
+        }
+
+        [TestMethod]
+        public void TestParseToInt()
+        {
+            RomanNumber rn = RomanNumber.Parse("CXXIII"); // 123
+            int result = (int)rn;
+            Assert.AreEqual(123, result);
+        }
+
+        [TestMethod]
         public void ToStringTest()
         {
             var testCases = new Dictionary<int, String>()
@@ -107,14 +163,35 @@ namespace Tests
             /* Виняток парсера - окрім причини винятку містить відомості
              * про місце виникнення помилки (позиція у рядку)
              */
-            String tpl1 = "illegal symbol '%c'";
-            String tpl2 = "in position %d";
+            String tpl1 = "illegal symbol '%r1'";
+            String tpl2 = "in position %r1";
             String tpl3 = "RomanNumber.Parse";
+            String tpl4 = "illegal sequence: more than one smaller digits before '%r1'";
+            String tpl5 = "illegal sequence: '%r1' before '%r2'";
             testCases = [
-                new("W",   0, [tpl1.Replace("%c", "W"), tpl2.Replace("%d", "0"), tpl3 ] ),
-                new("CS",  1, [tpl1.Replace("%c", "S"), tpl2.Replace("%d", "1"), tpl3 ] ),
-                new("CX1", 2, [tpl1.Replace("%c", "1"), tpl2.Replace("%d", "2"), tpl3 ] ),
-            ];
+                new( "W",   [ tpl1.R(["W"]), tpl2.R(["0"]), tpl3 ] ),
+                new( "CS",  [ tpl1.R(["S"]), tpl2.R(["1"]), tpl3 ] ),
+                new( "CX1", [ tpl1.R(["1"]), tpl2.R(["2"]), tpl3 ] ),
+                // Перед цифрою є декілька цифр, менших за неї
+                // !! кожна пара цифр - правильна комбінація,
+                //    проблема створюється щонайменше трьома цифрами                exCase3  
+                new( "IIX", [ tpl4.R(["X"]), tpl2.R(["2"]), tpl3 ] ),
+                new( "VIX", [ tpl4.R(["X"]), tpl2.R(["2"]), tpl3 ] ),
+                new( "XXC", [ tpl4.R(["C"]), tpl2.R(["2"]), tpl3 ] ),
+                new( "IXC", [ tpl4.R(["C"]), tpl2.R(["2"]), tpl3 ] ),
+                //                                                                  exCase4
+                new(  "VX",   [ tpl5.R(["V", "X"]), tpl2.R(["0"]), tpl3 ] ),
+                new(  "LC",   [ tpl5.R(["L", "C"]), tpl2.R(["0"]), tpl3 ] ),
+                new(  "DM",   [ tpl5.R(["D", "M"]), tpl2.R(["0"]), tpl3 ] ),
+                new(  "IC",   [ tpl5.R(["I", "C"]), tpl2.R(["0"]), tpl3 ] ),
+                new(  "MIM",  [ tpl5.R(["I", "M"]), tpl2.R(["1"]), tpl3 ] ),
+                new(  "MVM",  [ tpl5.R(["V", "M"]), tpl2.R(["1"]), tpl3 ] ),
+                new(  "MXM",  [ tpl5.R(["X", "M"]), tpl2.R(["1"]), tpl3 ] ),
+                new(  "CVC",  [ tpl5.R(["V", "C"]), tpl2.R(["1"]), tpl3 ] ),
+                new(  "MCVC", [ tpl5.R(["V", "C"]), tpl2.R(["2"]), tpl3 ] ),
+                new(  "DCIC", [ tpl5.R(["I", "C"]), tpl2.R(["2"]), tpl3 ] ),
+                new(  "IM",   [ tpl5.R(["I", "M"]), tpl2.R(["0"]), tpl3 ] ),
+                ];
             foreach (var exCase in testCases)
             {
                 var ex = Assert.ThrowsException<FormatException>(
@@ -195,7 +272,36 @@ namespace Tests
         }
     }
 
-    record TestCase(String Source, int? Value, IEnumerable<String>? ExMessageParts = null) { }
+    record TestCase(String Source, int? Value, IEnumerable<String>? ExMessageParts = null)
+    {
+        public TestCase(String Source, IEnumerable<String> parts)
+            : this(Source, null, parts) { }
+    }
+
+    public static class StringExtension
+    {
+        public static String F(this String Source, IEnumerable<String> olds,
+            IEnumerable<String> news)
+        {
+            String res = Source;
+            foreach (var item in olds.Zip(news))
+                res = res.Replace(item.First, item.Second);
+            return res;
+        }
+        public static String R(
+            this String Source,
+            IEnumerable<String> replaces)
+        {
+            String res = Source;
+            int i = 0;
+            foreach (var r in replaces)
+            {
+                ++i;
+                res = res.Replace($"%r{i}", r);
+            }
+            return res;
+        }
+    }
 
 }
 

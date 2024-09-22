@@ -11,6 +11,13 @@ namespace App
         public static RomanNumber Parse(String input) =>
             RomanNumberParser.FromString(input);
 
+        public static explicit operator short(RomanNumber rn) => (short)rn.Value;
+        public static explicit operator byte(RomanNumber rn) => (byte)rn.Value;
+        public static explicit operator long(RomanNumber rn) => (long)rn.Value;
+        public static explicit operator int(RomanNumber rn) => rn.Value;
+        public static explicit operator float(RomanNumber rn) => (float)rn.Value;
+        public static explicit operator double(RomanNumber rn) => (double)rn.Value;
+
         public override string? ToString()
         {
             Dictionary<int, String> ranges = new()
