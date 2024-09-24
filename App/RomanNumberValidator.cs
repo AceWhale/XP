@@ -27,14 +27,14 @@ namespace App
                 if (IsInvalidLessCounter(lessCounter, maxCounter))
                 {
                     throw new FormatException(
-                        $"{nameof(RomanNumber)}.Parse() " +
+                        $"{nameof(RomanNumber)}.Parse('{Value}') error: " +
                         $"illegal sequence: more than one smaller digits before '{Value[Value.Length - 1]}' in position {Value.Length - 1}");
                 }
                 result += digit < rightDigit ? -digit : digit;
                 rightDigit = digit;
             }
         }
-        public static void CheckZeroDigit(String input)
+        private static void CheckZeroDigit(String input)
         {
             if (input.Contains('N') && input.Length > 1)
             {
@@ -74,9 +74,7 @@ namespace App
             }
             catch (ArgumentException)
             {
-                throw new FormatException(
-                    $"{nameof(RomanNumber)}.Parse() " +
-                    $" found illegal symbol '{c}' in position {pos}");
+                throw new FormatException($"RomanNumber.Parse('{Value}') error: illegal symbol '{c}' in position {pos}");
             }
 
             return digit;
@@ -108,7 +106,7 @@ namespace App
             if (!CheckDigitRatio(digit, rightDigit))
             {
                 throw new FormatException(
-                    $"{nameof(RomanNumber)}.Parse() " +
+                    $"{nameof(RomanNumber)}.Parse('{Value}') error: " +
                     $"illegal sequence: '{c}' before '{Value[pos + 1]}' in position {pos}");
             }
         }

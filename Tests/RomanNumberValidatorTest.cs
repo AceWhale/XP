@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -10,6 +11,42 @@ namespace Tests
     [TestClass]
     public class RomanNumberValidatorTest
     {
+        //private TestCase[] casesCheckSymbols = [
+        //        new( "W",   ["W","0"]),
+        //        new( "CS",  ["S","1"]),
+        //        new( "CX1", ["1","2"]),
+        //    ];
+        //private TestCase[] casesCheckZeroDigitTest = [
+        //    new("NN",   ["0"]),
+        //    new("IN",   ["1"]),
+        //    new("NX",   ["0"]),
+        //    new("NC",   ["1"]),
+        //    new("XNC",  ["1"]),
+        //    new("XVIN", ["3"]),
+        //    new("XNNC", ["1"]),
+        //    new("NMC",  ["1"]),
+        //    new("NIX",  ["1"]),
+        //];
+
+        [TestMethod]
+        public void ValidateTest()
+        {
+            //foreach (var exCase in casesCheckZeroDigitTest.Concat(casesCheckSymbols))
+            //{
+            //    var ex = Assert.ThrowsException<FormatException>(
+            //        () => RomanNumberValidator.Validate(exCase.Source),
+            //        $"RomanNumberValidator.Validate(\"{exCase.Source}\") must throw FormatException"
+            //    );
+            //}
+        }
+
+
+        [TestMethod]
+        public void CheckSymbolTest()
+        {
+
+        }
+
         [TestMethod]
         public void DigitValueTest()
         {
@@ -175,24 +212,41 @@ namespace Tests
         [TestMethod]
         public void CheckZeroDigitTest()
         {
-            Object[][] exCases5 = [
-                [ "NN",   '0', 1 ],   // Цифра N не може бути у числі, тільки
-                [ "IN",   '1', 1 ],   // сама по собі
-                [ "NX",   '0', 0 ],
-                [ "NC",   '1', 1 ],
-                [ "XNC",  '1', 1 ],
-                [ "XVIN", '3', 3 ],
-                [ "XNNC", '1', 1 ],
-                [ "NMC",  '1', 1 ],
-                [ "NIX",  '1', 1 ]
-            ];
-            foreach (var exCase in exCases5)
-            {
-                var ex = Assert.ThrowsException<FormatException>(
-                    () => RomanNumberValidator.CheckZeroDigit(exCase[0].ToString()!),
-                    $"RomanNumber.CheckZeroDigit(\"{exCase[0]}\") must throw FormatException"
-                    );
-            }
+            /* Тестування приватних методів - задача потрібна, але вимагає
+             * особливого підходу
+             */
+            // Об'єктна рефлексія - робота з типами даних
+            Type rnvType = typeof(RomanNumberValidator);  // дані про тип
+            String methodName = "CheckZeroDigit";
+            MethodInfo? method = rnvType                    // шукаємо метод за
+                .GetMethod(methodName,                      // назвою, та такий, що
+                BindingFlags.Static |                       // є статичним та
+                BindingFlags.NonPublic);                    // не public
+
+            Assert.IsNotNull(method, $"Method '{methodName}' must be in type");
+
+            //foreach (var exCase in casesCheckZeroDigitTest)
+            //{
+            //    // !! Виконання методів з винятками через рефлексію
+            //    // призводить до появи окремого винятку:
+            //    // TargetInvocationException замість будь-якого винятку,
+            //    // що викидається у самому методі. Дані про внутрішній
+            //    // виняток збираються у поле eх. InnerException
+            //    // !! Також зауважимо, що Assert перевіряє типи суворо, тобто
+            //    // зазначити загальний Exception також буде помилкою
+            //    var ex = Assert.ThrowsException<TargetInvocationException>(
+            //        () => //RomanNumberValidator.CheckZeroDigit(exCase[0].ToString()!),
+            //              method.Invoke(                    // Виклик методу через тип
+            //                  null,                         // null - немає об'єкту (статичний)
+            //                  [exCase.Source.ToString()!]),     // параметри, навіть один іде масивом
+            //        $"method.Invoke(\"{exCase.Source}\") must throw TargetInvocationException"
+            //        );
+            //    Assert.AreEqual(
+            //        "FormatException",
+            //        ex.InnerException?.GetType().Name,
+            //        $"RomanNumberValidator.{methodName}(\"{exCase.Source}\") must throw FormatException"
+            //        );
+            //}
         }
     }
 }

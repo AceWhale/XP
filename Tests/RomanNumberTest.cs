@@ -163,34 +163,34 @@ namespace Tests
             /* Виняток парсера - окрім причини винятку містить відомості
              * про місце виникнення помилки (позиція у рядку)
              */
-            String tpl1 = "illegal symbol '%r1'";
-            String tpl2 = "in position %r1";
-            String tpl3 = "RomanNumber.Parse";
-            String tpl4 = "illegal sequence: more than one smaller digits before '%r1'";
-            String tpl5 = "illegal sequence: '%r1' before '%r2'";
+            String src = "RomanNumber.Parse('%r1') error: illegal";
+            String pos = "in position";
+            String illegalSymbolTemplate = $"{src} symbol '%r2' {pos} %r3";
+            String tpl2 = $"{src} sequence: more than one smaller digits before '%r2' {pos} %r3";
+            String tpl3 = $"{src} sequence: '%r2' before '%r3' {pos} %r4";
             testCases = [
-                new( "W",   [ tpl1.R(["W"]), tpl2.R(["0"]), tpl3 ] ),
-                new( "CS",  [ tpl1.R(["S"]), tpl2.R(["1"]), tpl3 ] ),
-                new( "CX1", [ tpl1.R(["1"]), tpl2.R(["2"]), tpl3 ] ),
+                new( ["W", 'W', 0, illegalSymbolTemplate ]),
+                new( ["CS",  'S', 1, illegalSymbolTemplate ]),
+                new( ["CX1", '1', 2, illegalSymbolTemplate ]),
                 // Перед цифрою є декілька цифр, менших за неї
                 // !! кожна пара цифр - правильна комбінація,
                 //    проблема створюється щонайменше трьома цифрами                exCase3  
-                new( "IIX", [ tpl4.R(["X"]), tpl2.R(["2"]), tpl3 ] ),
-                new( "VIX", [ tpl4.R(["X"]), tpl2.R(["2"]), tpl3 ] ),
-                new( "XXC", [ tpl4.R(["C"]), tpl2.R(["2"]), tpl3 ] ),
-                new( "IXC", [ tpl4.R(["C"]), tpl2.R(["2"]), tpl3 ] ),
+                new(["IIX", 'X', 2, tpl2]),
+                new(["VIX", 'X', 2, tpl2]),
+                new(["XXC", 'C', 2, tpl2]),
+                new(["IXC", 'C', 2, tpl2]),
                 //                                                                  exCase4
-                new(  "VX",   [ tpl5.R(["V", "X"]), tpl2.R(["0"]), tpl3 ] ),
-                new(  "LC",   [ tpl5.R(["L", "C"]), tpl2.R(["0"]), tpl3 ] ),
-                new(  "DM",   [ tpl5.R(["D", "M"]), tpl2.R(["0"]), tpl3 ] ),
-                new(  "IC",   [ tpl5.R(["I", "C"]), tpl2.R(["0"]), tpl3 ] ),
-                new(  "MIM",  [ tpl5.R(["I", "M"]), tpl2.R(["1"]), tpl3 ] ),
-                new(  "MVM",  [ tpl5.R(["V", "M"]), tpl2.R(["1"]), tpl3 ] ),
-                new(  "MXM",  [ tpl5.R(["X", "M"]), tpl2.R(["1"]), tpl3 ] ),
-                new(  "CVC",  [ tpl5.R(["V", "C"]), tpl2.R(["1"]), tpl3 ] ),
-                new(  "MCVC", [ tpl5.R(["V", "C"]), tpl2.R(["2"]), tpl3 ] ),
-                new(  "DCIC", [ tpl5.R(["I", "C"]), tpl2.R(["2"]), tpl3 ] ),
-                new(  "IM",   [ tpl5.R(["I", "M"]), tpl2.R(["0"]), tpl3 ] ),
+                new(["VX",  'V', 'X', 0, tpl3]),
+                new(["LC",  'L', 'C', 0, tpl3]),
+                new(["DM",  'D', 'M', 0, tpl3]),
+                new(["IC",  'I', 'C', 0, tpl3]),
+                new(["MIM", 'I', 'M', 1, tpl3]),
+                new(["MVM", 'V', 'M', 1, tpl3]),
+                new(["MXM", 'X', 'M', 1, tpl3]),
+                new(["CVC", 'V', 'C', 1, tpl3]),
+                new(["MCVC",'V', 'C', 2, tpl3]),
+                new(["DCIC",'I', 'C', 2, tpl3]),
+                new(["IM",  'I', 'M', 0, tpl3]),
                 ];
             foreach (var exCase in testCases)
             {
@@ -198,17 +198,22 @@ namespace Tests
                     () => RomanNumber.Parse(exCase.Source),
                     $"RomanNumber.Parse(\"{exCase.Source}\") must throw FormatException"
                     );
+                Assert.AreEqual(
+                    exCase.ExMessage,
+                    ex.Message,
+                    $"ex.Message must contain '{exCase.ExMessage}'; ex.Message: {ex.Message}");
                 // накладаємо вимоги на повідомлення
                 // - має містити сам символ, що призводить до винятку
                 // - має містити позицію символу в рядку
                 // - має містити назву методу та класу
-                foreach (String part in exCase.ExMessageParts!)
-                {
-                    Assert.IsTrue(
-                    ex.Message.Contains(part),
-                    $"ex.Message must contain '{part}'; ex.Message: {ex.Message}"
-                    );
-                }
+
+                //foreach (String part in exCase.ExMessageParts!)
+                //{
+                //    Assert.IsTrue(
+                //    ex.Message.Contains(part),
+                //    $"ex.Message must contain '{part}'; ex.Message: {ex.Message}"
+                //    );
+                //}
             }
 
         }
@@ -272,32 +277,32 @@ namespace Tests
         }
     }
 
-    record TestCase(String Source, int? Value, IEnumerable<String>? ExMessageParts = null)
+    record TestCase(String Source, int? Value, String? ExMessage = null)
     {
-        public TestCase(String Source, IEnumerable<String> parts)
-            : this(Source, null, parts) { }
+        public TestCase(String Source, String? ExMessagets)
+            : this(Source, null, ExMessagets) { }
+
+        public TestCase(List<Object> data) :
+            this(
+                data.First().ToString()!,
+                null,
+                data.Last().ToString()!.R(data[..^1])
+                )
+        { }
     }
 
     public static class StringExtension
     {
-        public static String F(this String Source, IEnumerable<String> olds,
-            IEnumerable<String> news)
-        {
-            String res = Source;
-            foreach (var item in olds.Zip(news))
-                res = res.Replace(item.First, item.Second);
-            return res;
-        }
         public static String R(
             this String Source,
-            IEnumerable<String> replaces)
+            IEnumerable<Object> replaces)
         {
             String res = Source;
             int i = 0;
             foreach (var r in replaces)
             {
                 ++i;
-                res = res.Replace($"%r{i}", r);
+                res = res.Replace($"%r{i}", r.ToString());
             }
             return res;
         }
