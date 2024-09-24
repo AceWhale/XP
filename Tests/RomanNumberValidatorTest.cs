@@ -1,4 +1,5 @@
 ﻿using App;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,28 +17,32 @@ namespace Tests
         //        new( "CS",  ["S","1"]),
         //        new( "CX1", ["1","2"]),
         //    ];
-        //private TestCase[] casesCheckZeroDigitTest = [
-        //    new("NN",   ["0"]),
-        //    new("IN",   ["1"]),
-        //    new("NX",   ["0"]),
-        //    new("NC",   ["1"]),
-        //    new("XNC",  ["1"]),
-        //    new("XVIN", ["3"]),
-        //    new("XNNC", ["1"]),
-        //    new("NMC",  ["1"]),
-        //    new("NIX",  ["1"]),
-        //];
+
 
         [TestMethod]
         public void ValidateTest()
         {
-            //foreach (var exCase in casesCheckZeroDigitTest.Concat(casesCheckSymbols))
-            //{
-            //    var ex = Assert.ThrowsException<FormatException>(
-            //        () => RomanNumberValidator.Validate(exCase.Source),
-            //        $"RomanNumberValidator.Validate(\"{exCase.Source}\") must throw FormatException"
-            //    );
-            //}
+            String src = "RomanNumber.Parse('%r1') error: illegal";
+            String pos = "in position";
+            String illegalSymbolTemplate = $"{src} number zero sequence {pos} %r2";
+            TestCase[] casesCheckZeroDigitTest = [
+                new(["NN",   0, illegalSymbolTemplate]),
+                new(["IN",   1, illegalSymbolTemplate]),
+                new(["NX",   0, illegalSymbolTemplate]),
+                new(["NC",   1, illegalSymbolTemplate]),
+                new(["XNC",  1, illegalSymbolTemplate]),
+                new(["XVIN", 3, illegalSymbolTemplate]),
+                new(["XNNC", 1, illegalSymbolTemplate]),
+                new(["NMC",  1, illegalSymbolTemplate]),
+                new(["NIX",  1, illegalSymbolTemplate]),
+            ];
+            foreach (var exCase in casesCheckZeroDigitTest)
+            {
+                var ex = Assert.ThrowsException<FormatException>(
+                    () => RomanNumberValidator.Validate(exCase.Source),
+                    $"RomanNumberValidator.Validate(\"{exCase.Source}\") must throw FormatException"
+                );
+            }
         }
 
 
@@ -188,23 +193,27 @@ namespace Tests
         [TestMethod]
         public void MaxAndLessCountersTest()
         {
-            Object[][] exCases4 = [
-                [ "IXX", 'I', 0 ],
-                [ "IXXX", 'I', 0],
-                [ "XCC", 'X', 0 ],
-                [ "XCCC", 'X', 0],
-                [ "CXCC", 'X', 1],
-                [ "CMM", 'C', 0 ],
-                [ "CMMM", 'C', 0],
-                [ "MCMM", 'C', 1],
-                [ "LCC", 'L', 0 ],
-                [ "ICCC", 'I', 0]
+            String src = "RomanNumber.Parse('%r1') error: illegal";
+            String pos = "in position";
+            String maxAndLessCountersTemplate = $"{src} sequence: more than one smaller digits before '%r2' {pos} %r3";
+
+            TestCase[] testCases = [
+                new( ["IXX", 'I',  0, maxAndLessCountersTemplate]),
+                new( ["IXXX", 'I', 0, maxAndLessCountersTemplate]),
+                new( ["XCC", 'X',  0, maxAndLessCountersTemplate]),
+                new( ["XCCC", 'X', 0, maxAndLessCountersTemplate]),
+                new( ["CXCC", 'X', 1, maxAndLessCountersTemplate]),
+                new( ["CMM", 'C',  0, maxAndLessCountersTemplate]),
+                new( ["CMMM", 'C', 0, maxAndLessCountersTemplate]),
+                new( ["MCMM", 'C', 1, maxAndLessCountersTemplate]),
+                new( ["LCC", 'L',  0, maxAndLessCountersTemplate]),
+                new( ["ICCC", 'I', 0, maxAndLessCountersTemplate])
             ];
-            foreach (var exCase in exCases4)
+            foreach (var exCase in testCases)
             {
                 var ex = Assert.ThrowsException<FormatException>(
-                    () => RomanNumber.Parse(exCase[0].ToString()!),
-                    $"RomanNumber.Parse(\"{exCase[0]}\") must throw FormatException"
+                    () => RomanNumber.Parse(exCase.Source.ToString()!),
+                    $"RomanNumber.Parse(\"{exCase.Source}\") must throw FormatException"
                     );
             }
         }

@@ -41,15 +41,7 @@ namespace App
                 throw new FormatException();
             }
         }
-        public static bool CheckDigitRatio(int leftDigit, int rightDigit)
-        {
-            //цифри занадто "далекі" для віднімання && віднімання цифр, що є "5"-ками
-            return leftDigit >= rightDigit || !(
-                   rightDigit != 0 && leftDigit != 0 && rightDigit / leftDigit > 10 ||
-                   leftDigit == 5 || leftDigit == 50 || leftDigit == 500
-                );
-        }
-        public static void CheckDigitRatios(String input)
+        private static void CheckDigitRatios(String input)
         {
             for (int i = 0; i < input.Length - 1; i++)
             {
@@ -65,6 +57,15 @@ namespace App
                 }
             }
         }
+        private static bool CheckDigitRatio(int leftDigit, int rightDigit)
+        {
+            //цифри занадто "далекі" для віднімання && віднімання цифр, що є "5"-ками
+            return leftDigit >= rightDigit || !(
+                   rightDigit != 0 && leftDigit != 0 && rightDigit / leftDigit > 10 ||
+                   leftDigit == 5 || leftDigit == 50 || leftDigit == 500
+                );
+        }
+        
         private static int ParseDigit(char c, int pos, string Value)
         {
             int digit;
