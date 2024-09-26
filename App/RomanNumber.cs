@@ -18,6 +18,11 @@ namespace App
         public static explicit operator float(RomanNumber rn) => (float)rn.Value;
         public static explicit operator double(RomanNumber rn) => (double)rn.Value;
 
+        public RomanNumber Plus(RomanNumber v) => 
+            v == null
+            ? throw new ArgumentNullException(nameof(v))
+            : this with { Value = Value + v.Value };
+
         public override string? ToString()
         {
             Dictionary<int, String> ranges = new()

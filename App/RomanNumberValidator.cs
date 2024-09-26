@@ -111,6 +111,11 @@ namespace App
                     $"illegal sequence: '{c}' before '{Value[pos + 1]}' in position {pos}");
             }
         }
+
+        private static void RomanPlus(String Value)
+        {
+
+        }
         public static int DigitValue(char digit) => digit switch
         {
             'N' => 0,
